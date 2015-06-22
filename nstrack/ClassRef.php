@@ -1,4 +1,10 @@
 <?php
+/*
+* NSTrack, Copyright (C) 2015 Karmabunny Web Design
+* Written by Benno Lang
+* Released under the GPL v3 with NO WARRANTY
+*/
+
 
 /**
  * A class reference within code

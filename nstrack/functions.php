@@ -1,4 +1,10 @@
 <?php
+/*
+* NSTrack, Copyright (C) 2015 Karmabunny Web Design
+* Written by Benno Lang
+* Released under the GPL v3 with NO WARRANTY
+*/
+
 
 /**
  * Converts a token (from token_get_all) to a readable, one line string
