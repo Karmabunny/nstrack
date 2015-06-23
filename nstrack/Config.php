@@ -11,7 +11,7 @@
  */
 class Config {
 	private static $src_dir;
-	private static $ignore;
+	private static $ignore = [];
 	private static $sort_function;
 	private static $group_function;
 	
