@@ -76,12 +76,14 @@ foreach ($files as $file) {
     }
 }
 
-$full_classes_str = "[\n";
-foreach ($full_classes as $class => $ns_classes) {
-	$full_classes_str .= $class . ' => [' . implode(', ', $ns_classes) . "],\n";
+if ($debug) {
+    $full_classes_str = "[\n";
+    foreach ($full_classes as $class => $ns_classes) {
+        $full_classes_str .= $class . ' => [' . implode(', ', $ns_classes) . "],\n";
+    }
+    $full_classes_str .= "];\n";
+    @file_put_contents('nstrack_classes.log', $full_classes_str);
 }
-$full_classes_str .= "];\n";
-@file_put_contents('nstrack_classes.log', $full_classes_str);
 
 $unknown_classes = [];
 
