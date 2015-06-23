@@ -24,9 +24,9 @@ $dir = realpath(getcwd()) . '/';
 Config::setSourceDir($dir);
 Config::load($dir . '.nstrack.php');
 
-$write = in_array('-w', $argv) or in_array('--write', $argv);
-$verbose = in_array('-v', $argv) or in_array('--verbose', $argv);
-$debug = in_array('-d', $argv) or in_array('--debug', $argv);
+$write = (in_array('-w', $argv) or in_array('--write', $argv));
+$verbose = (in_array('-v', $argv) or in_array('--verbose', $argv));
+$debug = (in_array('-d', $argv) or in_array('--debug', $argv));
 if ($debug) $verbose = true;
 
 $cmd = "find " . Config::dir() . " -name '*.php'";
