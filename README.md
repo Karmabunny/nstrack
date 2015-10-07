@@ -19,9 +19,12 @@ php ~/git/nstrack/nstrack.php
 
 There are also some flags which do additional processing:
 
-| Flag | Description |
-|------|-------------|
-| `--write` | Write mode. Alter files rather than just listing changes. A little bit buggy sometimes. Don't use this if you're not using source control!
-| `--verbose` | Output extra information |
-| `--debug` | Output debugging information |
-
+* `--write`
+  Write mode.
+  Alter files rather than just listing changes.
+  A little bit buggy sometimes.
+  Don't use this if you're not using source control!
+* `--verbose`
+  Output extra information
+* `--debug`
+  Output debugging information
