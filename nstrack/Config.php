@@ -14,7 +14,7 @@ class Config {
 	private static $ignore = [];
 	private static $sort_function;
 	private static $group_function;
-	
+
 	/**
 	 * @param array $a Classes associated with a use statement
 	 * @param array $b Classes associated with a use statement
@@ -26,12 +26,12 @@ class Config {
 		$b_has_ns = (strpos($b, '\\') !== false);
 		if (!$a_has_ns and $b_has_ns) return -1;
 		if ($a_has_ns and !$b_has_ns) return 1;
-		
+
 		if ($a < $b) return -1;
 		if ($a > $b) return 1;
 		return 0;
 	}
-	
+
 	/**
 	 * @param array $classes Classes associated with a use statement
 	 * @param bool $has_ns True if any of the classes include a namespace
@@ -41,10 +41,10 @@ class Config {
 	static function default_group(array $classes, $has_ns) {
 		return '';
 	}
-	
+
 	static function dir() { return self::$src_dir; }
 	static function ignore() { return self::$ignore; }
-	
+
 	/**
 	 * @return callable Function to sort use statements
 	 */
@@ -52,7 +52,7 @@ class Config {
 		if (!empty(self::$sort_function)) return self::$sort_function;
 		return self::default_sort;
 	}
-	
+
 	/**
 	 * @return callable Function to split use blocks into groups
 	 */
@@ -60,7 +60,7 @@ class Config {
 		if (!empty(self::$group_function)) return self::$group_function;
 		return self::default_group;
 	}
-	
+
 	/**
 	 * Sets the directory which contains the source code
 	 * @param string $dir
@@ -69,7 +69,7 @@ class Config {
 	static function setSourceDir($dir) {
 		self::$src_dir = realpath($dir) . '/';
 	}
-	
+
 	/**
 	 * Sets the list of classes to ignore
 	 * @param array $ignore Class names (excluding namespaces)
@@ -78,7 +78,7 @@ class Config {
 	static function setIgnore(array $ignore) {
 		self::$ignore = $ignore;
 	}
-	
+
 	/**
 	 * Sets the list of classes to ignore
 	 * @param array $ignore Class names (excluding namespaces)
@@ -87,11 +87,11 @@ class Config {
 	static function setSort(callable $func) {
 		self::$sort_function = $func;
 	}
-	
+
 	static function setGroup(callable $func) {
 		self::$group_function = $func;
 	}
-	
+
 	/**
 	 * Loads a config file.
 	 * The file should call Config::set* methods
@@ -100,5 +100,6 @@ class Config {
 	 */
 	static function load($file) {
 		if (file_exists($file)) require $file;
+		else die ('Error: no configuration file found! You need a ".nstrack.php" file in the current directory.' . PHP_EOL);
 	}
 }

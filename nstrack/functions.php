@@ -60,6 +60,7 @@ function array_shortest($arr) {
 function write_use_block($block, $file) {
 	$lines = file($file);
 	$in_php = false;
+    $in_comment = false;
 	$code_start = -1;
 	$ns = -1;
 	$use_start = -1;
@@ -70,22 +71,42 @@ function write_use_block($block, $file) {
 			continue;
 		}
 		if (preg_match('/^\s*$/', $line)) continue;
-		
+
 		if ($in_php) {
+            if ($in_comment) {
+                if (preg_match('!\*/!', $line)) {
+                    $in_comment = false;
+                }
+
+                continue;
+            }
+
+            if (preg_match('!^\s*(/\*.*\*/|//.*)$!', $line)) {
+                continue;
+            }
+
+            if (preg_match('!^\s*/\*!', $line)) {
+                $in_comment = true;
+                continue;
+            }
+
 			if (preg_match('/^\s*namespace\s/', $line)) {
 				$ns = $num;
 				continue;
 			}
+
 			if (preg_match('/^\s*use\s/', $line)) {
 				if ($use_start < 0) $use_start = $num;
 				continue;
 			}
+
 			$use_end = $num;
 		}
+
 		$code_start = $num;
 		break;
 	}
-	
+
 	if ($use_start > 0) {
 		$start = rtrim(implode(array_slice($lines, 0, $use_start), ''));
 		if ($ns > 0) {
@@ -119,6 +140,6 @@ function write_use_block($block, $file) {
 		throw new Exception($err);
 	}
 	$new_content = $start . $block . $end;
-	
+
 	file_put_contents($file, $new_content);
 }
