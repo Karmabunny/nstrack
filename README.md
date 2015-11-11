@@ -28,3 +28,11 @@ There are also some flags which do additional processing:
   Output extra information
 * `--debug`
   Output debugging information
+* `--targeted`
+  Refines the output and side-effects (e.g. `--write`) to a certain directory or file.
+* `--needs`
+  Display only missing use statements.
+* `--missing`
+  Display only missing classes.
+* `--colours`
+  Enable coloured output.
