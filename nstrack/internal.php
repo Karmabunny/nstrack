@@ -5,42 +5,17 @@
 * Released under the GPL v3 with NO WARRANTY
 */
 
-$internal_classes = [
-    // Include PHP's inbuilt classes/interfaces
-    'Exception',
-    'ErrorException',
-    'InvalidArgumentException',
-    'LogicException',
-    'OutOfBoundsException',
-    'RuntimeException',
-    'UnexpectedValueException',
-    
-    'ReflectionClass',
-    'ReflectionException',
-    'ReflectionMethod',
-    
-    'DOMComment',
-    'DOMDocument',
-    'DOMElement',
-    'DOMImplementation',
-    'DOMText',
-    'DOMXPath',
-    'DOMXpath',
-    
-    'ArrayAccess',
-    'ArrayObject',
+// Keep a list of PHP's inbuilt classes/interfaces/traits to match against
+// N.B. This is called before any other includes, so it won't find anything external
+$internal_classes = get_declared_classes();
+$internal_classes = array_merge($internal_classes, get_declared_interfaces());
+$internal_classes = array_merge($internal_classes, get_declared_traits());
+
+// Feel free to hack this list; it's fairly basic by default
+$internal_classes = array_merge($internal_classes, [
+    // Add classes from PHP modules which may not be installed
     'Gmagick',
     'Imagick',
-    'Iterator',
-    'IteratorAggregate',
-    'mysqli',
-    'PDO',
-    'PDOStatement',
-    'RecursiveDirectoryIterator',
-    'RecursiveIteratorIterator',
-    'SimpleXMLElement',
-    'stdClass',
-    'ZipArchive',
     
     // And classes from PEAR or other such installed packages
     'Mail',
@@ -48,4 +23,4 @@ $internal_classes = [
     'PEAR_Dependency2',
     'PHPUnit_Framework_TestCase',
     'TCPDF',
-];
+]);
