@@ -50,7 +50,7 @@ class Config {
      */
     static function sort() {
         if (!empty(self::$sort_function)) return self::$sort_function;
-        return self::default_sort;
+        return [__CLASS__, 'default_sort'];
     }
 
     /**
@@ -58,7 +58,7 @@ class Config {
      */
     static function group() {
         if (!empty(self::$group_function)) return self::$group_function;
-        return self::default_group;
+        return [__CLASS__, 'default_group'];
     }
 
     /**
@@ -99,7 +99,10 @@ class Config {
      * @return void
      */
     static function load($file) {
-        if (file_exists($file)) require $file;
-        else die ('Error: no configuration file found! You need a ".nstrack.php" file in the current directory.' . PHP_EOL);
+        if (file_exists($file)) {
+            require $file;
+        } else {
+            fwrite(STDERR, "No config file loaded; using default settings\n");
+        }
     }
 }
