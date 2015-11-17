@@ -182,8 +182,10 @@ foreach ($file_names as $filename) {
         
         $debug_text .= "    Determining appropriate use statement for missing class\n\n";
         
-        if (isset($full_classes[$class])) {
-            $to_use = $full_classes[$class];
+        $base_class = rm_class_ns($class);
+        $debug_text .= "    Class {$class} has base: {$base_class}\n\n";
+        if (isset($full_classes[$base_class])) {
+            $to_use = $full_classes[$base_class];
         } else {
             // Haven't seen class name at all in any of the parsed files
             $missing[] = $class_ref;
