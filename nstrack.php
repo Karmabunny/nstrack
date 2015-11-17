@@ -128,8 +128,11 @@ foreach ($file_names as $filename) {
     foreach ($used_classes as $class_ref) {
         $class = $class_ref->class;
         $line = $class_ref->line;
+        
         $debug_text .= "Checking class ref: {$class} on line {$line}\n";
-        if (in_array($class, $ignore)) {
+        $ignore_class = $class;
+        if ($ignore_class[0] == '\\') $ignore_class = substr($ignore_class, 1);
+        if (in_array($ignore_class, $ignore)) {
             $debug_text .= "Deliberately ignored\n";
             continue;
         }
