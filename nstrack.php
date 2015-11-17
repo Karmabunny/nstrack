@@ -39,7 +39,7 @@ if ($missing_only and $needs_only) {
 }
 
 if ($targeted) {
-    if ($argc <= $targeted + 1) die('--targeted requires a directory argumemt' . PHP_EOL);
+    if ($argc <= $targeted + 1) die('--targeted requires a directory argument' . PHP_EOL);
     
     $target_dir = escapeshellarg(Config::dir() . $argv[$targeted + 1]);
     $targeted = true;
