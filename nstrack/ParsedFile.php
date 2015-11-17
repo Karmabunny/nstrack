@@ -53,23 +53,27 @@ class ParsedFile {
             
             switch ($token[0]) {
                 case T_NAMESPACE:
-                    $parsed_file->handleNamespace(++$key);
+                    ++$key;
+                    $parsed_file->handleNamespace($key);
                     break;
                 
                 case T_USE:
-                    $parsed_file->handleUse(++$key);
+                    ++$key;
+                    $parsed_file->handleUse($key);
                     break;
                 
                 case T_CLASS:
                 case T_INTERFACE:
-                    $parsed_file->handleClass(++$key);
+                    ++$key;
+                    $parsed_file->handleClass($key);
                     break;
                 
                 case T_NEW:
                 case T_INSTANCEOF:
                 case T_EXTENDS:
                 case T_IMPLEMENTS:
-                    $parsed_file->handleRef(++$key);
+                    ++$key;
+                    $parsed_file->handleRef($key);
                     break;
                 
                 case T_DOUBLE_COLON:
