@@ -272,7 +272,7 @@ foreach ($file_names as $filename) {
         
         $use_block .= "use ";
         $class = array_shortest($classes);
-        if (@$class[0] == '\\') $class = substr($class, 1);
+        if ($class[0] == '\\') $class = substr($class, 1);
         $use_block .= $class . ";\n";
     }
     

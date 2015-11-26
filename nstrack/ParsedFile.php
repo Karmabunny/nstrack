@@ -160,6 +160,12 @@ class ParsedFile {
             if (in_array($tok[0], $ok)) {
                 $class = $tok[1] . $class;
                 $line = $tok[2];
+                
+            // ignore static::$var and static::func() calls
+            } else if ($tok[0] == T_STATIC) {
+                ++$key;
+                return;
+                
             } else if ($tok[0] != T_WHITESPACE) {
                 break;
             }
