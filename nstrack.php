@@ -25,14 +25,14 @@ Config::setSourceDir($dir);
 Config::load($dir . '.nstrack.php');
 
 $write = (in_array('-w', $argv) or in_array('--write', $argv));
-$verbose = (in_array('-v', $argv) or in_array('--verbose', $argv));
-$debug = (in_array('-d', $argv) or in_array('--debug', $argv));
 $missing_only = (in_array('-m', $argv) or in_array('--missing', $argv));
 $needs_only = (in_array('-n', $argv) or in_array('--needs', $argv));
-$use_colours = (in_array('-c', $argv) or in_array('--colours', $argv));
+$use_colours = (in_array('-c', $argv) or in_array('--colour', $argv) or in_array('--color', $argv));
+$log_classes = (in_array('-l', $argv) or in_array('--log-classes', $argv));
 $targeted = array_search('--targeted', $argv);
+$watch = array_search('--watch', $argv);
 $target_dir = null;
-if ($debug) $verbose = true;
+$watch_pattern = null;
 
 if ($missing_only and $needs_only) {
     die('You can\'t have it both ways. Pick one or none: -m or -n' . PHP_EOL);
@@ -43,6 +43,13 @@ if ($targeted) {
     
     $target_dir = escapeshellarg(Config::dir() . $argv[$targeted + 1]);
     $targeted = true;
+}
+
+if ($watch) {
+    if ($argc <= $watch + 1) die('--watch requires a pattern argument' . PHP_EOL);
+    
+    $watch_pattern = $argv[$watch + 1];
+    $watch = true;
 }
 
 $cmd = "find " . Config::dir() . " -name '*.php'";
@@ -64,7 +71,7 @@ foreach ($file_names as $file) {
         die("ERROR: multiple namespace declarations. Don't do this!");
     }
     
-    if ($verbose) {
+    if ($watch and fnmatch($watch_pattern, $file)) {
         echo '*** ', $file, "\n";
         echo 'namespaces: ', implode(', ', $data->namespaces), "\n";
         echo 'uses: ', implode(', ', $data->uses), "\n";
@@ -92,7 +99,7 @@ foreach ($files as $file) {
     }
 }
 
-if ($debug) {
+if ($log_classes) {
     $full_classes_str = "[\n";
     foreach ($full_classes as $class => $ns_classes) {
         $full_classes_str .= $class . ' => [' . implode(', ', $ns_classes) . "],\n";
@@ -202,10 +209,17 @@ foreach ($file_names as $filename) {
         if (!in_array($to_use, $need)) $need[] = $to_use;
     }
     
-    $display = false;
+    $debug = $display = false;
     if (count($need) > 0 and !$missing_only) $display = true;
     if (count($missing) > 0 and !$needs_only) $display = true;
-    if ($debug) $display = true;
+    if ($watch) {
+        if (fnmatch($watch_pattern, $filename)) {
+            $debug = true;
+            $display = true;
+        } else {
+            $display = false;
+        }
+    }
     
     if (!$display) continue;
     
@@ -213,8 +227,8 @@ foreach ($file_names as $filename) {
     if ($use_colours) echo "\033[1;34m[{$count}] {$file->file}\033[0m", PHP_EOL;
     else echo "[{$count}] {$file->file}", PHP_EOL;
     
-    if ($namespace and $verbose) echo "(namespace $namespace)\n";
     if ($debug) {
+        if ($namespace) echo "(namespace $namespace)\n";
         echo "Existing use statements:\n";
         foreach ($file->uses as $use_st) {
             echo "    use ", $use_st, "\n";
@@ -237,7 +251,7 @@ foreach ($file_names as $filename) {
         continue;
     }
     
-    if ($verbose) {
+    if ($debug) {
         echo "Use: [" . implode(', ', $file->uses) . "]\n";
         echo "Actual use: [", implode(', ', $used_classes), "]\n";
         echo "Need:\n";
