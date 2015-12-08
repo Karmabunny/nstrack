@@ -6,16 +6,50 @@
 */
 
 
-/**
- * Reports on missing use statements found within a directory
- * 
- * This is achieved by parsing a bunch of PHP files (all files found by the
- * UN*X "find" command), and extracting the following data from each file:
- * - namespace
- * - use statements
- * - class definitions
- * - class references (code => actual)
- */
+$docs = <<<DOCS
+
+NAME
+    NSTrack
+
+SYNOPSIS
+    php nstrack.php [options]
+
+DESCRIPTION
+    Reports on missing use statements and unknown class-like entities in code. Interfaces count as class-like entities, and traits do as well, although they haven't been tested.
+    
+    This is achieved by parsing all PHP files, and extracting the following data from each file:
+        namespace; use statements; class definitions; class references.
+    
+    Files to be parsed are found by the UN*X "find" command, starting from the current working directory, or alternatively from a directory specified by a .nstrack.php config file.
+    
+OPTIONS
+    -c, --colour, --color
+        Applies colours to the program's output.
+
+    -h, --help
+        Display this help information
+
+    -l, --log-classes
+        Write a log of all the classes found to the file nstrack_classes.log.
+
+    -m, --missing
+        Only searches for missing classes, not use statements. This mode is incompatible with --needs.
+
+    -n, --needs
+        Only searches for missing use statements, not unknown classes. This mode is incompatible with --missing.
+
+    --targeted path
+        Only search the specified path. All found files will still be parsed to extract the necessary class definitions. N.B. only the first --targeted option will be applied.
+
+    -w, --write
+        Run in write mode, where files are automatically overwritten with an updated list of use statements.
+
+    --watch pattern
+        Prints debug output when parsing or processing files with names which match the (glob-style) wildcard pattern, e.g. '*Controller.php'
+
+DOCS;
+
+if (in_array('-h', $argv) or in_array('--help', $argv) or in_array('-help', $argv)) die(ltrim($docs));
 
 
 require __DIR__ . '/nstrack/inc.php';
