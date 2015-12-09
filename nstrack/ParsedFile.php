@@ -101,15 +101,20 @@ class ParsedFile {
      */
     function extractEntity(&$key, $is_ref = false) {
         $offset = -1;
-        $ok = [T_STRING, T_NS_SEPARATOR, T_NS_C];
+        $ok = [T_STRING, T_NS_C];
         $ref_ok = [T_VARIABLE, T_STRING, T_CLASS_C, T_STATIC];
         if ($is_ref) $ok = array_merge($ok, $ref_ok);
         
         $entity = '';
+        $at_nss = false;
         while (true) {
             ++$offset;
             $tok = $this->tokens[$key + $offset];
-            if (in_array($tok[0], $ok)) {
+            if ($tok[0] == T_NS_SEPARATOR) {
+                $at_nss = true;
+                $entity .= $tok[1];
+            } else if (in_array($tok[0], $ok) and ($at_nss or $entity == '')) {
+                $at_nss = false;
                 $entity .= $tok[1];
             } else if ($tok[0] != T_WHITESPACE) {
                 break;
