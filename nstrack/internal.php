@@ -13,6 +13,22 @@ $internal_classes = array_merge($internal_classes, get_declared_traits());
 
 // Feel free to hack this list; it's fairly basic by default
 $internal_classes = array_merge($internal_classes, [
+    // PHP 7 classes in case the code is PHP 7 aware but NSTrack user isn't running PHP 7
+    'ArithmeticError',
+    'AssertionError',
+    'ClosedGeneratorException',
+    'DivisionByZeroError',
+    'Error',
+    'ParseError',
+    'ReflectionGenerator',
+    'ReflectionType',
+    'SQLite3',
+    'SQLite3Result',
+    'SQLite3Stmt',
+    'SessionUpdateTimestampHandlerInterface',
+    'Throwable',
+    'TypeError',
+
     // Add classes from PHP modules which may not be installed
     'Gmagick',
     'Imagick',
