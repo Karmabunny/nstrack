@@ -76,7 +76,7 @@ $use_colours = (in_array('-c', $argv) or in_array('--colour', $argv) or in_array
 $log_classes = (in_array('-l', $argv) or in_array('--log-classes', $argv));
 $targeted = array_search('--targeted', $argv);
 $watch = array_search('--watch', $argv);
-$target_dir = null;
+$target_path = null;
 $watch_pattern = null;
 
 if ($missing_only and $needs_only) {
@@ -84,9 +84,9 @@ if ($missing_only and $needs_only) {
 }
 
 if ($targeted) {
-    if ($argc <= $targeted + 1) die('--targeted requires a directory argument' . PHP_EOL);
+    if ($argc <= $targeted + 1) die('--targeted requires a path argument' . PHP_EOL);
     
-    $target_dir = escapeshellarg(Config::dir() . $argv[$targeted + 1]);
+    $target_path = escapeshellarg($dir . $argv[$targeted + 1]);
     $targeted = true;
 }
 
@@ -156,10 +156,10 @@ if ($log_classes) {
 $unknown_classes = [];
 
 if ($targeted) {
-    $cmd = "find {$target_dir} -name '*.php'";
+    $cmd = "find {$target_path} -name '*.php'";
     $file_names = [];
     exec($cmd, $file_names);
-    echo 'Restricting changes to: ', $target_dir, PHP_EOL;
+    echo 'Restricting changes to: ', $target_path, PHP_EOL;
 }
 
 // Compare use block with actual classes used
