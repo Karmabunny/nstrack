@@ -74,20 +74,19 @@ $missing_only = (in_array('-m', $argv) or in_array('--missing', $argv));
 $needs_only = (in_array('-n', $argv) or in_array('--needs', $argv));
 $use_colours = (in_array('-c', $argv) or in_array('--colour', $argv) or in_array('--color', $argv));
 $log_classes = (in_array('-l', $argv) or in_array('--log-classes', $argv));
-$targeted = array_search('--targeted', $argv);
 $watch = array_search('--watch', $argv);
-$target_path = null;
+$target_paths = array();
 $watch_pattern = null;
 
 if ($missing_only and $needs_only) {
     die('You can\'t have it both ways. Pick one or none: -m or -n' . PHP_EOL);
 }
 
-if ($targeted) {
-    if ($argc <= $targeted + 1) die('--targeted requires a path argument' . PHP_EOL);
-    
-    $target_path = escapeshellarg($dir . $argv[$targeted + 1]);
-    $targeted = true;
+foreach ($argv as $index => $arg) {
+    if ($arg == '--targeted') {
+        if ($argc <= $index + 1) die('--targeted requires a path argument' . PHP_EOL);
+        $target_paths[] = escapeshellarg($dir . $argv[$index + 1]);
+    }
 }
 
 if ($watch) {
@@ -155,11 +154,16 @@ if ($log_classes) {
 
 $unknown_classes = [];
 
-if ($targeted) {
-    $cmd = "find {$target_path} -name '*.php'";
+if (count($target_paths) > 0) {
     $file_names = [];
-    exec($cmd, $file_names);
-    echo 'Restricting changes to: ', $target_path, PHP_EOL;
+    foreach ($target_paths as $path) {
+        $cmd = "find {$path} -name '*.php'";
+        $tmp = [];
+        exec($cmd, $tmp);
+        $file_names = array_merge($file_names, $tmp);
+    }
+    $file_names = array_unique($file_names);
+    echo 'Restricting changes to: ', implode(', ', $target_paths), PHP_EOL;
 }
 
 // Compare use block with actual classes used
