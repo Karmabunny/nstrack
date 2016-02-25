@@ -28,7 +28,7 @@ DESCRIPTION
     a .nstrack.php config file.
     
 OPTIONS
-    -c, --colour, --color
+    -d, --no-colour, --no-color
         Applies colours to the program's output.
 
     -h, --help
@@ -72,7 +72,7 @@ Config::load($dir . '.nstrack.php');
 $write = (in_array('-w', $argv) or in_array('--write', $argv));
 $missing_only = (in_array('-m', $argv) or in_array('--missing', $argv));
 $needs_only = (in_array('-n', $argv) or in_array('--needs', $argv));
-$use_colours = (in_array('-c', $argv) or in_array('--colour', $argv) or in_array('--color', $argv));
+$use_colours = (!in_array('-d', $argv) and !in_array('--no-colour', $argv) and !in_array('--no-color', $argv));
 $log_classes = (in_array('-l', $argv) or in_array('--log-classes', $argv));
 $watch = array_search('--watch', $argv);
 $target_paths = array();
@@ -163,7 +163,11 @@ if (count($target_paths) > 0) {
         $file_names = array_merge($file_names, $tmp);
     }
     $file_names = array_unique($file_names);
-    echo 'Restricting changes to: ', implode(', ', $target_paths), PHP_EOL;
+    if ($use_colours) {
+        echo "\033[1;32mRestricting changes to: ", implode(', ', $target_paths), "\033[0m", PHP_EOL;
+    } else {
+        echo 'Restricting changes to: ', implode(', ', $target_paths), PHP_EOL;
+    }
 }
 
 // Compare use block with actual classes used
