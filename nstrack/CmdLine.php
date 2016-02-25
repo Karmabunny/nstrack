@@ -48,7 +48,7 @@ class CmdLine {
         $this->write = (in_array('-w', $argv) or in_array('--write', $argv));
         $this->missing_only = (in_array('-m', $argv) or in_array('--missing', $argv));
         $this->needs_only = (in_array('-n', $argv) or in_array('--needs', $argv));
-        $this->use_colours = !(in_array('-d', $argv) or in_array('--no-colour', $argv) or in_array('--no-color', $argv));
+        $this->use_colours = (!in_array('-d', $argv) and !in_array('--no-colour', $argv) and !in_array('--no-color', $argv));
         $this->log_classes = (in_array('-l', $argv) or in_array('--log-classes', $argv));
 
         if ($this->missing_only and $this->needs_only) {
