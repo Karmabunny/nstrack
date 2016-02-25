@@ -8,6 +8,7 @@
 
 require __DIR__ . '/internal.php';
 require __DIR__ . '/Config.php';
+require __DIR__ . '/CmdLine.php';
 require __DIR__ . '/ParsedFile.php';
 require __DIR__ . '/ClassRef.php';
 require __DIR__ . '/UseStatement.php';

@@ -69,32 +69,7 @@ $dir = realpath(getcwd()) . '/';
 Config::setSourceDir($dir);
 Config::load($dir . '.nstrack.php');
 
-$write = (in_array('-w', $argv) or in_array('--write', $argv));
-$missing_only = (in_array('-m', $argv) or in_array('--missing', $argv));
-$needs_only = (in_array('-n', $argv) or in_array('--needs', $argv));
-$use_colours = (!in_array('-d', $argv) and !in_array('--no-colour', $argv) and !in_array('--no-color', $argv));
-$log_classes = (in_array('-l', $argv) or in_array('--log-classes', $argv));
-$watch = array_search('--watch', $argv);
-$target_paths = array();
-$watch_pattern = null;
-
-if ($missing_only and $needs_only) {
-    die('You can\'t have it both ways. Pick one or none: -m or -n' . PHP_EOL);
-}
-
-foreach ($argv as $index => $arg) {
-    if ($arg == '--targeted') {
-        if ($argc <= $index + 1) die('--targeted requires a path argument' . PHP_EOL);
-        $target_paths[] = escapeshellarg($dir . $argv[$index + 1]);
-    }
-}
-
-if ($watch) {
-    if ($argc <= $watch + 1) die('--watch requires a pattern argument' . PHP_EOL);
-    
-    $watch_pattern = $argv[$watch + 1];
-    $watch = true;
-}
+$cmdline = new CmdLine($dir, $argv);
 
 $cmd = "find " . Config::dir() . " -name '*.php'";
 $files = [];
@@ -115,7 +90,7 @@ foreach ($file_names as $file) {
         die("ERROR: multiple namespace declarations. Don't do this!");
     }
     
-    if ($watch and fnmatch($watch_pattern, $file)) {
+    if ($cmdline->watch and fnmatch($cmdline->watch_pattern, $file)) {
         echo '*** ', $file, "\n";
         echo 'namespaces: ', implode(', ', $data->namespaces), "\n";
         echo 'uses: ', implode(', ', $data->uses), "\n";
@@ -143,7 +118,7 @@ foreach ($files as $file) {
     }
 }
 
-if ($log_classes) {
+if ($cmdline->log_classes) {
     $full_classes_str = "[\n";
     foreach ($full_classes as $class => $ns_classes) {
         $full_classes_str .= $class . ' => [' . implode(', ', $ns_classes) . "],\n";
@@ -154,19 +129,19 @@ if ($log_classes) {
 
 $unknown_classes = [];
 
-if (count($target_paths) > 0) {
+if (count($cmdline->target_paths) > 0) {
     $file_names = [];
-    foreach ($target_paths as $path) {
+    foreach ($cmdline->target_paths as $path) {
         $cmd = "find {$path} -name '*.php'";
         $tmp = [];
         exec($cmd, $tmp);
         $file_names = array_merge($file_names, $tmp);
     }
     $file_names = array_unique($file_names);
-    if ($use_colours) {
-        echo "\033[1;32mRestricting changes to: ", implode(', ', $target_paths), "\033[0m", PHP_EOL;
+    if ($cmdline->use_colours) {
+        echo "\033[1;32mRestricting changes to: ", implode(', ', $cmdline->target_paths), "\033[0m", PHP_EOL;
     } else {
-        echo 'Restricting changes to: ', implode(', ', $target_paths), PHP_EOL;
+        echo 'Restricting changes to: ', implode(', ', $cmdline->target_paths), PHP_EOL;
     }
 }
 
@@ -263,10 +238,10 @@ foreach ($file_names as $filename) {
     }
     
     $debug = $display = false;
-    if (count($need) > 0 and !$missing_only) $display = true;
-    if (count($missing) > 0 and !$needs_only) $display = true;
-    if ($watch) {
-        if (fnmatch($watch_pattern, $filename)) {
+    if (count($need) > 0 and !$cmdline->missing_only) $display = true;
+    if (count($missing) > 0 and !$cmdline->needs_only) $display = true;
+    if ($cmdline->watch) {
+        if (fnmatch($cmdline->watch_pattern, $filename)) {
             $debug = true;
             $display = true;
         } else {
@@ -277,7 +252,7 @@ foreach ($file_names as $filename) {
     if (!$display) continue;
     
     ++$count;
-    if ($use_colours) echo "\033[1;34m[{$count}] {$file->file}\033[0m", PHP_EOL;
+    if ($cmdline->use_colours) echo "\033[1;34m[{$count}] {$file->file}\033[0m", PHP_EOL;
     else echo "[{$count}] {$file->file}", PHP_EOL;
     
     if ($debug) {
@@ -289,17 +264,17 @@ foreach ($file_names as $filename) {
         echo $debug_text;
     }
 
-    if (count($missing) > 0 and !$needs_only) {
+    if (count($missing) > 0 and !$cmdline->needs_only) {
         echo "MISSING:\n";
         $lines = explode("\n", $file->content);
         foreach ($missing as $class_ref) {
-            if ($use_colours) echo "\033[1;31m{$class_ref->class}\033[0m, line {$class_ref->line}: ";
+            if ($cmdline->use_colours) echo "\033[1;31m{$class_ref->class}\033[0m, line {$class_ref->line}: ";
             else echo "{$class_ref->class}, line {$class_ref->line}: ";
             echo trim($lines[$class_ref->line - 1]), "\n";
         }
     }
     
-    if ($missing_only) {
+    if ($cmdline->missing_only) {
         echo PHP_EOL;
         continue;
     }
@@ -344,6 +319,6 @@ foreach ($file_names as $filename) {
     }
     
     echo $use_block;
-    if ($write and $use_block) write_use_block($use_block, $file->file);
+    if ($cmdline->write and $use_block) write_use_block($use_block, $file->file);
     echo "\n****************************************\n";
 }
