@@ -29,7 +29,7 @@ DESCRIPTION
     
 OPTIONS
     -d, --no-colour, --no-color
-        Applies colours to the program's output.
+        Disable terminal colours, which are enabled by default
 
     -h, --help
         Display this help information
