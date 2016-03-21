@@ -290,7 +290,9 @@ foreach ($file_names as $filename) {
     
     // Incorporate extant use statements to create a complete list
     foreach ($file->uses as $use_st) {
-        $need[] = [(string) $use_st];
+        if ($use_st->entity) {
+            $need[] = [(string) $use_st];
+        }
     }
     
     usort($need, Config::sort());
