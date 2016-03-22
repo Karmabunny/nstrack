@@ -47,8 +47,11 @@ OPTIONS
 
     --targeted path
         Only search the specified path. All found files will still be parsed
-        to extract the necessary class definitions. N.B. only the
-        first --targeted option will be applied.
+        to extract the necessary class definitions. Supports multiple --targeted
+        options.
+
+    --git
+        Target all changed files according to git (does a `git status`).
 
     -w, --write
         Run in write mode, where files are automatically overwritten with an
