@@ -62,6 +62,9 @@ class CmdLine {
                 $this->target_paths[] = escapeshellarg($this->dir . $argv[$index + 1]);
             }
         }
+        if (in_array('--git', $argv)) {
+            $this->addGitTargets();
+        }
 
         $this->watch = array_search('--watch', $argv);
         if ($this->watch) {
@@ -71,6 +74,34 @@ class CmdLine {
             $this->watch = true;
         } else {
             $this->watch_pattern = null;
+        }
+    }
+
+
+    /**
+     * Execute a "git status" and use that to add target paths
+     * Note - doesn't currently parse flags in status, so may try to target deleted files
+     */
+    public function addGitTargets()
+    {
+        $git_log = shell_exec('git status -z --porcelain');
+        $git_log = array_filter(explode("\0", $git_log));
+
+        foreach ($git_log as $ln) {
+            $flags = substr($ln, 0, 2);
+            $filename = substr($ln, 3);
+
+            $pos = strpos($filename, ' -> ');
+            if ($pos !== false) {
+                $filename = substr($filename, $pos + 4);
+            }
+
+            if ($filename[0] == '"') {
+                $filename = trim($filename, '"');
+                $filename = stripslashes($filename);
+            }
+
+            $this->target_paths[] = escapeshellarg($this->dir . $filename);
         }
     }
 
