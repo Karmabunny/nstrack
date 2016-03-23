@@ -70,7 +70,7 @@ class CmdLine {
         if ($this->watch) {
             if ($argc <= $this->watch + 1) die('--watch requires a pattern argument' . PHP_EOL);
             
-            $this->watch_pattern = $argv[$watch + 1];
+            $this->watch_pattern = $argv[$this->watch + 1];
             $this->watch = true;
         } else {
             $this->watch_pattern = null;
