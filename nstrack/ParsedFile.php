@@ -150,10 +150,6 @@ class ParsedFile {
         $this->addClassRef($class, $line, $key);
     }
     
-    /**
-     * @todo maybe handle weird cases like a static call on an array element,
-     *       e.g. $arr['key']::someFunction(...)
-     */
     function handleStatic(&$key) {
         $i = $key;
         $class = '';
@@ -177,6 +173,9 @@ class ParsedFile {
         }
         ++$key;
         
+        // Ignore weird cases like a static call on an array element, e.g. $arr['key']::someFunction(...)
+        if (!$class) return;
+
         $this->addClassRef($class, $line, $key);
     }
     
