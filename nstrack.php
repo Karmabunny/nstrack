@@ -166,12 +166,22 @@ foreach ($file_names as $filename) {
     
     $debug_text = '';
     $missing = [];
-    foreach ($used_classes as $class_ref) {
+    foreach ($used_classes as $ref_id => $class_ref) {
         $class = $class_ref->class;
         $line = $class_ref->line;
         
         $debug_text .= "Checking class ref: {$class} on line {$line}\n";
         $ignore_class = $class;
+
+        if (!$class) {
+            $err = "Broken class ref in {$filename} on line {$line}\n" . print_r($class_ref, true);
+            $err .= "\nToken: " . token_str($file->tokens[$class_ref->key]) . "\n";
+            if (!empty($used_classes[$ref_id - 1])) $err .= "Prev ref: " . print_r($used_classes[$ref_id - 1], true);
+            if (!empty($used_classes[$ref_id + 1])) $err .= "Next ref: " . print_r($used_classes[$ref_id + 1], true);
+            fwrite(STDERR, $err);
+            continue;
+        }
+
         if ($ignore_class[0] == '\\') $ignore_class = substr($ignore_class, 1);
         if (in_array($ignore_class, $ignore)) {
             $debug_text .= "Deliberately ignored\n";
