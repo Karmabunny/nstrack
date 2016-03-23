@@ -13,14 +13,17 @@
 class ClassRef {
     public $class;
     public $line;
+    public $key;
     
     /**
      * @param string $class The name of the referenced class
      * @param int $line The line number where the class is referenced
+     * @param int $key Token key in the parsed file; see {@see token_get_all}
      */
-    function __construct($class, $line) {
+    function __construct($class, $line, $key = -1) {
         $this->class = $class;
         $this->line = $line;
+        $this->key = $key;
     }
     
     function __toString() {

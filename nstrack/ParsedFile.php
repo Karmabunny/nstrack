@@ -147,7 +147,7 @@ class ParsedFile {
         $line = $this->tokens[$key][2];
         $class = $this->extractEntity($key, true);
         
-        $this->addClassRef($class, $line);
+        $this->addClassRef($class, $line, $key);
     }
     
     /**
@@ -177,7 +177,7 @@ class ParsedFile {
         }
         ++$key;
         
-        $this->addClassRef($class, $line);
+        $this->addClassRef($class, $line, $key);
     }
     
     function handleCatch(&$key) {
@@ -193,7 +193,7 @@ class ParsedFile {
         $line = $tok[2];
         $class = $this->extractEntity($key, true);
         
-        $this->addClassRef($class, $line);
+        $this->addClassRef($class, $line, $key);
     }
     
     function isEmpty() {
@@ -204,7 +204,7 @@ class ParsedFile {
         return true;
     }
     
-    function addClassRef($class, $line) {
+    function addClassRef($class, $line, $key) {
         if (strpos($class, '$') !== false) return;
         if ($class == 'self' or $class == 'parent') return;
         if ($class == 'static' or $class == '__CLASS__') return;
@@ -212,6 +212,6 @@ class ParsedFile {
         foreach ($this->refs as $ref) {
             if ($ref->class == $class) return;
         }
-        $this->refs[] = new ClassRef($class, $line);
+        $this->refs[] = new ClassRef($class, $line, $key);
     }
 }
