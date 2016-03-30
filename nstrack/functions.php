@@ -95,6 +95,10 @@ function write_use_block($block, $file) {
 
             // Start of comment
             if (preg_match('!^\s*/\*!', $line)) {
+                if ($use_start > 0) {
+                    $use_end = $num;
+                    break;
+                }
                 $in_comment = true;
                 continue;
             }
