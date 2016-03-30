@@ -79,33 +79,39 @@ function write_use_block($block, $file) {
         if (preg_match('/^\s*$/', $line)) continue;
 
         if ($in_php) {
+
+            // Skim to the end of a comment
             if ($in_comment) {
                 if (preg_match('!\*/!', $line)) {
                     $in_comment = false;
                 }
-
                 continue;
             }
 
+            // Ignore one-line comments
             if (preg_match('!^\s*(/\*.*\*/|//.*)$!', $line)) {
                 continue;
             }
 
+            // Start of comment
             if (preg_match('!^\s*/\*!', $line)) {
                 $in_comment = true;
                 continue;
             }
 
+            // Position of namespace declaration
             if (preg_match('/^\s*namespace\s/', $line)) {
                 $ns = $num;
                 continue;
             }
 
+            // Position of first use statement
             if (preg_match('/^\s*use\s/', $line)) {
                 if ($use_start < 0) $use_start = $num;
                 continue;
             }
 
+            // Position after all use statements
             $use_end = $num;
         }
 
