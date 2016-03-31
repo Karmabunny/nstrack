@@ -63,9 +63,6 @@ OPTIONS
 
 DOCS;
 
-// Sadly, the PHP parser in atom gets confused by the ' in the above text
-// and the syntax highlighting has a heart-attack. The apostrophe above fixes it.
-
 if (in_array('-h', $argv) or in_array('--help', $argv) or in_array('-help', $argv)) die(ltrim($docs));
 
 
