@@ -82,12 +82,29 @@ $files = [];
 $file_names = [];
 exec($cmd, $file_names);
 
+$cache_file = '.nstrack_cache.json';
+if (file_exists($cache_file)) {
+    $cache = json_decode(file_get_contents($cache_file), true);
+    echo "Loading cached data for ", count($cache), " file", (count($cache) == 1 ? '' : 's'), "\n";
+    foreach ($cache as $cache_data) {
+        if (!file_exists($cache_data['file'])) continue;
+
+        $files[$cache_data['file']] = load_cached_file($cache_data);
+    }
+}
+
+$new_files_read = 0;
 $file_count = 0;
 foreach ($file_names as $file) {
-    
-    $data = ParsedFile::parse($file);
-    $files[$file] = $data;
-    
+    if (isset($files[$file]) and filemtime($file) == $files[$file]->mtime) {
+        $data = $files[$file];
+    } else {
+        ++$new_files_read;
+        $data = ParsedFile::parse($file);
+        $data->mtime = filemtime($file);
+        $files[$file] = $data;
+    }
+
     if ($data->isEmpty()) continue;
     
     if (count($data->namespaces) > 1) {
@@ -104,6 +121,28 @@ foreach ($file_names as $file) {
         echo 'refs: ', implode(', ', $data->refs), "\n";
         echo "\n";
     }
+}
+
+echo $new_files_read, ' file', ($new_files_read == 1 ? '' : 's'), " read\n";
+
+// Cache results
+if ($new_files_read > 0 and $json_file = fopen($cache_file, 'w')) {
+    $cache = [];
+    foreach ($files as $file) {
+        $cache_data = [
+            'mtime' => $file->mtime,
+            'namespaces' => $file->namespaces,
+            'classes' => $file->classes,
+            'refs' => $file->refs,
+            'uses' => $file->uses,
+            'file' => $file->file,
+        ];
+        $cache[] = $cache_data;
+    }
+    $json = json_encode($cache);
+    json_fail($json);
+    fwrite($json_file, $json);
+    fclose($json_file);
 }
 
 /** Mapping of base class name => array of namespaced classnames, e.g.

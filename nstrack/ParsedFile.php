@@ -12,6 +12,7 @@
 class ParsedFile {
     public $file;
     public $content;
+    public $mtime;
     public $tokens = [];
     
     /** e.g. namespace A\B\C; */
@@ -33,15 +34,17 @@ class ParsedFile {
      * catch (A\B\C ...)
      */
     public $refs = [];
-    
+
+
     function __construct($file) {
         $this->file = $file;
-        $this->content = file_get_contents($file);
-        $this->tokens = token_get_all($this->content);
     }
-    
+
+
     static function parse($file) {
         $parsed_file = new ParsedFile($file);
+        $parsed_file->content = file_get_contents($file);
+        $parsed_file->tokens = token_get_all($parsed_file->content);
         $num_tokens = count($parsed_file->tokens);
         $key = 0;
         while ($key < $num_tokens) {

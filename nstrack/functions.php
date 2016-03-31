@@ -159,3 +159,69 @@ function write_use_block($block, $file) {
 
     file_put_contents($file, $new_content);
 }
+
+
+/**
+ * Generates a ParsedFile from cached data
+ * @param array $cache_data An entry from the cache file
+ * @return ParsedFile File info
+ */
+function load_cached_file(array $cache_data)
+{
+    $parsed_file = new ParsedFile($cache_data['file']);
+    $parsed_file->mtime = $cache_data['mtime'];
+    $parsed_file->namespaces = $cache_data['namespaces'];
+    $parsed_file->classes = $cache_data['classes'];
+
+    // Convert arrays to ClassRef objects
+    $parsed_file->refs = [];
+    foreach ($cache_data['refs'] as $ref) {
+        $class_ref = new ClassRef($ref['class'], $ref['line'], $ref['key']);
+        $parsed_file->refs[] = $class_ref;
+    }
+
+    // Convert arrays to UseStatement objects
+    $parsed_file->uses = [];
+    foreach ($cache_data['uses'] as $use) {
+        $use_st = new UseStatement($use['entity'], $use['alias']);
+        $parsed_file->uses[] = $use_st;
+    }
+
+    return $parsed_file;
+}
+
+
+/**
+ * Checks that a call to json_encode was successful
+ * @param mixed $json Result of json_encode
+ * @return void
+ * @throws Exception Containing error message
+ */
+function json_fail($json)
+{
+    if ($json !== false) return;
+
+    switch (json_last_error()) {
+        case JSON_ERROR_NONE:
+            return;
+        case JSON_ERROR_DEPTH:
+            $err = 'Maximum stack depth exceeded';
+        break;
+        case JSON_ERROR_STATE_MISMATCH:
+            $err = 'Underflow or the modes mismatch';
+        break;
+        case JSON_ERROR_CTRL_CHAR:
+            $err = 'Unexpected control character found';
+        break;
+        case JSON_ERROR_SYNTAX:
+            $err = 'Syntax error, malformed JSON';
+        break;
+        case JSON_ERROR_UTF8:
+            $err = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+        break;
+        default:
+            $err = 'Unknown error';
+        break;
+    }
+    throw new Exception($err);
+}
