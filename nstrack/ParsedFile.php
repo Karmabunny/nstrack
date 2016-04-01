@@ -87,6 +87,10 @@ class ParsedFile {
                     $parsed_file->handleCatch($key);
                     break;
                 
+                case T_FUNCTION:
+                    $parsed_file->handleFunction($key);
+                    break;
+                
                 default:
                     ++$key;
             }
@@ -196,6 +200,36 @@ class ParsedFile {
         $class = $this->extractEntity($key, true);
         
         $this->addClassRef($class, $line, $key);
+    }
+    
+    function handleFunction(&$key) {
+        // Skip to function args
+        do {
+            ++$key;
+        } while ($this->tokens[$key] !== '(');
+        ++$key;
+        
+        $i = $key;
+        
+        $tok = $this->tokens[$i];
+        $expect_type = true;
+        while ($tok !== ')') {
+            if ($tok === ',') {
+                $expect_type = true;
+            } else {
+                if ($expect_type and $tok[0] == T_STRING) {
+                    $line = $tok[2];
+                    $class = $this->extractEntity($i, false);
+                    $this->addClassRef($class, $line, $i);
+                    $tok = $this->tokens[$i];
+                    $expect_type = false;
+                    continue;
+                }
+                $expect_type = false;
+            }
+            ++$i;
+            $tok = $this->tokens[$i];
+        }
     }
     
     function isEmpty() {
