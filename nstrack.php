@@ -200,6 +200,8 @@ foreach ($file_names as $filename) {
     // Always ignore these
     $ignore = Config::ignore();
     
+    $referenced_uses = [];
+    
     $debug_text = '';
     $missing = [];
     foreach ($used_classes as $ref_id => $class_ref) {
@@ -243,6 +245,7 @@ foreach ($file_names as $filename) {
             $debug_text .= "    against use: {$use}... ";
             if ($use->alias == $class) {
                 $used = true;
+                if (!in_array($use, $referenced_uses)) $referenced_uses[] = $use;
                 $debug_text .= "OK (matches use alias)\n\n";
                 break;
             }
@@ -250,6 +253,7 @@ foreach ($file_names as $filename) {
             $debug_text .= " stripped to {$stripped}... ";
             if ($stripped == $class) {
                 $used = true;
+                if (!in_array($use, $referenced_uses)) $referenced_uses[] = $use;
                 $debug_text .= "OK (matches use class)\n\n";
                 break;
             } else {
@@ -258,6 +262,7 @@ foreach ($file_names as $filename) {
                     $class_ns = substr($class, 0, $pos);
                     if ($stripped == $class_ns) {
                         $used = true;
+                        if (!in_array($use, $referenced_uses)) $referenced_uses[] = $use;
                         $debug_text .= "OK (matches use NS)\n\n";
                         break;
                     }
@@ -289,8 +294,20 @@ foreach ($file_names as $filename) {
         if (!in_array($to_use, $need)) $need[] = $to_use;
     }
     
+    // The list of use statements needs to be updated if:
+    // - any of the existing use statements have no references
+    // - new use statements are required
+    $needs_match = true;
+    foreach ($file->uses as $use) {
+        if (!in_array($use, $referenced_uses)) {
+            $needs_match = false;
+            break;
+        }
+    }
+    if (count($need) > 0) $needs_match = false;
+    
     $debug = $display = false;
-    if (count($need) > 0 and !$cmdline->missing_only) $display = true;
+    if (!$needs_match and !$cmdline->missing_only) $display = true;
     if (count($missing) > 0 and !$cmdline->needs_only) $display = true;
     if ($cmdline->watch) {
         if (fnmatch($cmdline->watch_pattern, $filename)) {
@@ -339,9 +356,10 @@ foreach ($file_names as $filename) {
     
     // Incorporate extant use statements to create a complete list
     foreach ($file->uses as $use_st) {
-        if ($use_st->entity) {
-            $need[] = [(string) $use_st];
+        if (!in_array($use_st, $referenced_uses)) {
+            continue;
         }
+        $need[] = [(string) $use_st];
     }
     
     usort($need, Config::sort());
