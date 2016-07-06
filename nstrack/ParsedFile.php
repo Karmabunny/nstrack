@@ -138,6 +138,10 @@ class ParsedFile {
     
     function handleUse(&$key) {
         $ns = $this->extractEntity($key);
+
+        // Ignore use ($var) in closure declarations
+        if (!$ns) return;
+
         $alias = '';
         if ($this->tokens[$key][0] == T_AS) {
             $key += 2;
