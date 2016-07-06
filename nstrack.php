@@ -335,7 +335,14 @@ foreach ($file_names as $filename) {
 
     if (count($missing) > 0 and !$cmdline->needs_only) {
         echo "MISSING:\n";
-        $lines = explode("\n", $file->content);
+
+        // File content isn't available when running off cached NS refs, so read the file
+        if (empty($file->content)) {
+            $lines = file($file->file);
+        } else {
+            $lines = explode("\n", $file->content);
+        }
+
         foreach ($missing as $class_ref) {
             if ($cmdline->use_colours) echo "\033[1;31m{$class_ref->class}\033[0m, line {$class_ref->line}: ";
             else echo "{$class_ref->class}, line {$class_ref->line}: ";
