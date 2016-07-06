@@ -32,7 +32,8 @@ $internal_classes = array_merge($internal_classes, [
     // Add classes from PHP modules which may not be installed
     'Gmagick',
     'Imagick',
-    
+    'ZipArchive',
+
     // And classes from PEAR or other such installed packages
     'Mail',
     'Mail_mime',
