@@ -136,7 +136,7 @@ if ($new_files_read > 0 and $json_file = fopen($cache_file, 'w')) {
         ];
         $cache[] = $cache_data;
     }
-    $json = json_encode($cache);
+    $json = json_encode($cache, JSON_PRETTY_PRINT);
     json_fail($json);
     fwrite($json_file, $json);
     fclose($json_file);
