@@ -138,12 +138,12 @@ if ($new_files_read > 0 and $json_file = fopen($cache_file, 'w')) {
     $cache = [];
     foreach ($files as $file) {
         $cache_data = [
+            'file' => $file->file,
             'mtime' => $file->mtime,
             'namespaces' => $file->namespaces,
             'classes' => $file->classes,
             'refs' => $file->refs,
             'uses' => $file->uses,
-            'file' => $file->file,
         ];
         $cache[] = $cache_data;
     }
