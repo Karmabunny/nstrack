@@ -47,14 +47,25 @@ class ParsedFile {
         $parsed_file->tokens = token_get_all($parsed_file->content);
         $num_tokens = count($parsed_file->tokens);
         $key = 0;
+        $parsed_file->brace_depth = 0;
         while ($key < $num_tokens) {
             $token = $parsed_file->tokens[$key];
             if (is_string($token)) {
                 ++$key;
+                if ($token == '{') {
+                    ++$parsed_file->brace_depth;
+                } else if ($token == '}') {
+                    --$parsed_file->brace_depth;
+                }
                 continue;
             }
             
             switch ($token[0]) {
+                case T_CURLY_OPEN:
+                    ++$key;
+                    ++$parsed_file->brace_depth;
+                    break;
+
                 case T_NAMESPACE:
                     ++$key;
                     $parsed_file->handleNamespace($key);
@@ -67,6 +78,7 @@ class ParsedFile {
                 
                 case T_CLASS:
                 case T_INTERFACE:
+                case T_TRAIT:
                     ++$key;
                     $parsed_file->handleClass($key);
                     break;
@@ -95,6 +107,12 @@ class ParsedFile {
                     ++$key;
             }
         }
+
+        if ($parsed_file->brace_depth != 0) {
+            throw new Exception("Brace depth of {$parsed_file->brace_depth} not zero at end of file: {$file}");
+        }
+        unset($parsed_file->brace_depth);
+
         return $parsed_file;
     }
     
@@ -141,6 +159,13 @@ class ParsedFile {
 
         // Ignore use ($var) in closure declarations
         if (!$ns) return;
+
+        // use statement inside a class refers to a trait, not a namespace
+        if ($this->brace_depth > 0) {
+            $line = $this->tokens[$key][2];
+            $this->addClassRef($ns, $line, $key);
+            return;
+        }
 
         $alias = '';
         if ($this->tokens[$key][0] == T_AS) {
