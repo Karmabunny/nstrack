@@ -18,15 +18,15 @@ DESCRIPTION
     Reports on missing use statements and unknown class-like entities in code.
     Interfaces count as class-like entities, and traits do as well, although
     they haven't been tested.
-    
+
     This is achieved by parsing all PHP files, and extracting the following
     data from each file:
         namespace; use statements; class definitions; class references.
-    
+
     Files to be parsed are found by the UN*X "find" command, starting from the
     current working directory, or alternatively from a directory specified by
     a .nstrack.php config file.
-    
+
 OPTIONS
     -d, --no-colour, --no-color
         Disable terminal colours, which are enabled by default
@@ -103,13 +103,13 @@ foreach ($file_names as $file) {
     }
 
     if ($data->isEmpty()) continue;
-    
+
     if (count($data->namespaces) > 1) {
         echo '*** ', $file, "\n";
         echo 'namespaces: ', implode(', ', $data->namespaces), "\n";
         die("ERROR: multiple namespace declarations. Don't do this!");
     }
-    
+
     if ($cmdline->watch and fnmatch($cmdline->watch_pattern, $file)) {
         echo '*** ', $file, "\n";
         echo 'namespaces: ', implode(', ', $data->namespaces), "\n";
@@ -193,21 +193,21 @@ $count = 0;
 foreach ($file_names as $filename) {
     $file = $files[$filename];
     $used_classes = $file->refs;
-    
+
     $need = [];
     $namespace = @$file->namespaces[0];
-    
+
     // Always ignore these
     $ignore = Config::ignore();
-    
+
     $referenced_uses = [];
-    
+
     $debug_text = '';
     $missing = [];
     foreach ($used_classes as $ref_id => $class_ref) {
         $class = $class_ref->class;
         $line = $class_ref->line;
-        
+
         $debug_text .= "Checking class ref: {$class} on line {$line}\n";
         $ignore_class = $class;
 
@@ -225,7 +225,7 @@ foreach ($file_names as $filename) {
             $debug_text .= "Deliberately ignored\n";
             continue;
         }
-        
+
         // Handle class with complete namespace reference,
         // e.g. \AwesomeProject\AwesomeThings\Awesome
         if ($class[0] == '\\') {
@@ -238,7 +238,7 @@ foreach ($file_names as $filename) {
             }
             $debug_text .= "no good\n";
         }
-        
+
         // Determine class using use statements
         $used = false;
         foreach ($file->uses as $use) {
@@ -271,9 +271,9 @@ foreach ($file_names as $filename) {
             $debug_text .= "no good\n";
         }
         if ($used) continue;
-        
+
         $debug_text .= "    Determining appropriate use statement for missing class\n\n";
-        
+
         $base_class = rm_class_ns($class);
         $debug_text .= "    Class {$class} has base: {$base_class}\n\n";
         if (isset($full_classes[$base_class])) {
@@ -285,15 +285,15 @@ foreach ($file_names as $filename) {
         }
         $full_ref = $class;
         if ($namespace) $full_ref = $namespace . "\\" . $class;
-        
+
         // There's no need to add a 'use' statement if the desired class
         // already exists in the same namespace
         if (in_array($full_ref, $to_use)) continue;
-        
+
         // Only store first reference so that log isn't giant
         if (!in_array($to_use, $need)) $need[] = $to_use;
     }
-    
+
     // The list of use statements needs to be updated if:
     // - any of the existing use statements have no references
     // - new use statements are required
@@ -305,7 +305,7 @@ foreach ($file_names as $filename) {
         }
     }
     if (count($need) > 0) $needs_match = false;
-    
+
     $debug = $display = false;
     if (!$needs_match and !$cmdline->missing_only) $display = true;
     if (count($missing) > 0 and !$cmdline->needs_only) $display = true;
@@ -317,13 +317,13 @@ foreach ($file_names as $filename) {
             $display = false;
         }
     }
-    
+
     if (!$display) continue;
-    
+
     ++$count;
     if ($cmdline->use_colours) echo "\033[1;34m[{$count}] {$file->file}\033[0m", PHP_EOL;
     else echo "[{$count}] {$file->file}", PHP_EOL;
-    
+
     if ($debug) {
         if ($namespace) echo "(namespace $namespace)\n";
         echo "Existing use statements:\n";
@@ -349,18 +349,18 @@ foreach ($file_names as $filename) {
             echo trim($lines[$class_ref->line - 1]), "\n";
         }
     }
-    
+
     if ($cmdline->missing_only) {
         echo PHP_EOL;
         continue;
     }
-    
+
     if ($debug) {
         echo "Use: [" . implode(', ', $file->uses) . "]\n";
         echo "Actual use: [", implode(', ', $used_classes), "]\n";
         echo "Need:\n";
     }
-    
+
     // Incorporate extant use statements to create a complete list
     foreach ($file->uses as $use_st) {
         if (!in_array($use_st, $referenced_uses)) {
@@ -368,9 +368,9 @@ foreach ($file_names as $filename) {
         }
         $need[] = [(string) $use_st];
     }
-    
+
     usort($need, Config::sort());
-    
+
     $use_block = '';
     $section = '';
     $last_section = '';
@@ -382,21 +382,21 @@ foreach ($file_names as $filename) {
                 break;
             }
         }
-        
+
         $groupify = Config::group();
         $section = $groupify($classes, $has_ns);
-        
+
         if ($section != $last_section) {
             if ($last_section != '') $use_block .= "\n";
             $last_section = $section;
         }
-        
+
         $use_block .= "use ";
         $class = array_shortest($classes);
         if ($class[0] == '\\') $class = substr($class, 1);
         $use_block .= $class . ";\n";
     }
-    
+
     echo $use_block;
     if ($cmdline->write and $use_block) write_use_block($use_block, $file->file);
     echo "\n****************************************\n";
