@@ -71,7 +71,7 @@ function write_use_block($block, $file) {
             $in_php = false;
             break;
         }
-        
+
         if (preg_match('/^\s*<\?php/', $line)) {
             $in_php = true;
             continue;

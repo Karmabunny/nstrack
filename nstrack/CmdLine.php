@@ -11,7 +11,7 @@
  */
 class CmdLine {
     private $dir;
-    
+
     public $write;
     public $missing_only;
     public $needs_only;
@@ -69,7 +69,7 @@ class CmdLine {
         $this->watch = array_search('--watch', $argv);
         if ($this->watch) {
             if ($argc <= $this->watch + 1) die('--watch requires a pattern argument' . PHP_EOL);
-            
+
             $this->watch_pattern = $argv[$this->watch + 1];
             $this->watch = true;
         } else {

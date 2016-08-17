@@ -14,16 +14,16 @@ class ParsedFile {
     public $content;
     public $mtime;
     public $tokens = [];
-    
+
     /** e.g. namespace A\B\C; */
     public $namespaces = [];
-    
+
     /** Each element is a UseStatement, e.g. use A\B\C as D; */
     public $uses = [];
-    
+
     /** e.g. class A\B\C */
     public $classes = [];
-    
+
     /**
      * e.g.
      * A\B\C::D
@@ -59,7 +59,7 @@ class ParsedFile {
                 }
                 continue;
             }
-            
+
             switch ($token[0]) {
                 case T_CURLY_OPEN:
                     ++$key;
@@ -70,19 +70,19 @@ class ParsedFile {
                     ++$key;
                     $parsed_file->handleNamespace($key);
                     break;
-                
+
                 case T_USE:
                     ++$key;
                     $parsed_file->handleUse($key);
                     break;
-                
+
                 case T_CLASS:
                 case T_INTERFACE:
                 case T_TRAIT:
                     ++$key;
                     $parsed_file->handleClass($key);
                     break;
-                
+
                 case T_NEW:
                 case T_INSTANCEOF:
                 case T_EXTENDS:
@@ -90,19 +90,19 @@ class ParsedFile {
                     ++$key;
                     $parsed_file->handleRef($key);
                     break;
-                
+
                 case T_DOUBLE_COLON:
                     $parsed_file->handleStatic($key);
                     break;
-                
+
                 case T_CATCH:
                     $parsed_file->handleCatch($key);
                     break;
-                
+
                 case T_FUNCTION:
                     $parsed_file->handleFunction($key);
                     break;
-                
+
                 default:
                     ++$key;
             }
@@ -115,7 +115,7 @@ class ParsedFile {
 
         return $parsed_file;
     }
-    
+
     /**
      * Gets a class/interface/function name, possibly prefixed with a namespace
      * @param int $key Position of current token in token array
@@ -129,7 +129,7 @@ class ParsedFile {
         $ok = [T_STRING, T_NS_C];
         $ref_ok = [T_VARIABLE, T_STRING, T_CLASS_C, T_STATIC];
         if ($is_ref) $ok = array_merge($ok, $ref_ok);
-        
+
         $entity = '';
         $at_nss = false;
         while (true) {
@@ -148,12 +148,12 @@ class ParsedFile {
         $key += $offset;
         return $entity;
     }
-    
-    
+
+
     function handleNamespace(&$key) {
         $this->namespaces[] = $this->extractEntity($key);
     }
-    
+
     function handleUse(&$key) {
         $ns = $this->extractEntity($key);
 
@@ -174,18 +174,18 @@ class ParsedFile {
         }
         $this->uses[] = new UseStatement($ns, $alias);
     }
-    
+
     function handleClass(&$key) {
         $this->classes[] = $this->extractEntity($key);
     }
-    
+
     function handleRef(&$key) {
         $line = $this->tokens[$key][2];
         $class = $this->extractEntity($key, true);
-        
+
         $this->addClassRef($class, $line, $key);
     }
-    
+
     function handleStatic(&$key) {
         $i = $key;
         $class = '';
@@ -197,24 +197,24 @@ class ParsedFile {
             if (in_array($tok[0], $ok)) {
                 $class = $tok[1] . $class;
                 $line = $tok[2];
-                
+
             // ignore static::$var and static::func() calls
             } else if ($tok[0] == T_STATIC) {
                 ++$key;
                 return;
-                
+
             } else if ($tok[0] != T_WHITESPACE) {
                 break;
             }
         }
         ++$key;
-        
+
         // Ignore weird cases like a static call on an array element, e.g. $arr['key']::someFunction(...)
         if (!$class) return;
 
         $this->addClassRef($class, $line, $key);
     }
-    
+
     function handleCatch(&$key) {
         while (++$key) {
             $tok = $this->tokens[$key];
@@ -227,19 +227,19 @@ class ParsedFile {
         }
         $line = $tok[2];
         $class = $this->extractEntity($key, true);
-        
+
         $this->addClassRef($class, $line, $key);
     }
-    
+
     function handleFunction(&$key) {
         // Skip to function args
         do {
             ++$key;
         } while ($this->tokens[$key] !== '(');
         ++$key;
-        
+
         $i = $key;
-        
+
         $tok = $this->tokens[$i];
         $expect_type = true;
         while ($tok !== ')') {
@@ -260,7 +260,7 @@ class ParsedFile {
             $tok = $this->tokens[$i];
         }
     }
-    
+
     function isEmpty() {
         if (count($this->namespaces) > 0) return false;
         if (count($this->uses) > 0) return false;
@@ -268,12 +268,12 @@ class ParsedFile {
         if (count($this->refs) > 0) return false;
         return true;
     }
-    
+
     function addClassRef($class, $line, $key) {
         if (strpos($class, '$') !== false) return;
         if ($class == 'self' or $class == 'parent') return;
         if ($class == 'static' or $class == '__CLASS__') return;
-        
+
         foreach ($this->refs as $ref) {
             if ($ref->class == $class) return;
         }

@@ -9,7 +9,7 @@
 class UseStatement {
     public $entity;
     public $alias;
-    
+
     /**
      * @param string $entity The entity, e.g. AwesomeThings\SuperThing
      * @param string $alias The alias, i.e. 'as ___'
@@ -18,7 +18,7 @@ class UseStatement {
         $this->entity = $entity;
         $this->alias = $alias;
     }
-    
+
     function __toString() {
         $str = $this->entity;
         if ($this->alias) $str .= ' as ' . $this->alias;

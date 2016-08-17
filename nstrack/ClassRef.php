@@ -14,7 +14,7 @@ class ClassRef {
     public $class;
     public $line;
     public $key;
-    
+
     /**
      * @param string $class The name of the referenced class
      * @param int $line The line number where the class is referenced
@@ -25,7 +25,7 @@ class ClassRef {
         $this->line = $line;
         $this->key = $key;
     }
-    
+
     function __toString() {
         return $this->class . ' (line ' . $this->line . ')';
     }
