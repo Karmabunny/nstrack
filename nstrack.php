@@ -68,18 +68,29 @@ if (in_array('-h', $argv) or in_array('--help', $argv) or in_array('-help', $arg
 
 require __DIR__ . '/nstrack/inc.php';
 
-$dir = realpath(getcwd()) . '/';
-Config::setSourceDir($dir);
-Config::load($dir . '.nstrack.php');
+$source_dir = realpath(getcwd()) . '/';
+$config_file = '.nstrack.php';
 
-$cmdline = new CmdLine($dir, $argv);
+// step up the dir tree in order to find a config file
+$dir = $source_dir;
+while ($dir and is_dir($dir) and !file_exists($dir . $config_file)) {
+    $dir = preg_replace('#[^/]*/$#', '', $dir);
+}
+if (file_exists($dir . $config_file)) {
+    $source_dir = $dir;
+}
+
+Config::setSourceDir($source_dir);
+Config::load($source_dir . $config_file);
+
+$cmdline = new CmdLine($source_dir, $argv);
 
 $cmd = "find " . Config::dir() . " -name '*.php'";
 $files = [];
 $file_names = [];
 exec($cmd, $file_names);
 
-$cache_file = '.nstrack_cache.json';
+$cache_file = $source_dir . '.nstrack_cache.json';
 if (file_exists($cache_file)) {
     $cache = json_decode(file_get_contents($cache_file), true);
     echo "Loading cached data for ", count($cache), " file", (count($cache) == 1 ? '' : 's'), "\n";
