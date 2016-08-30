@@ -36,6 +36,34 @@ class CmdLine {
 
 
     /**
+     * Searches an array for a set of terms, removes any instances of them, and returns true if any were found.
+     *
+     * N.B. The identical (===) comparison method is used to do the matching
+     *
+     * @param array $needles The terms to find in the array
+     * @param array $haystack The array to search
+     * @return bool True if at least one matching term was found
+     */
+    protected function arraySeekAndDestroy(array $needles, array &$haystack)
+    {
+        if (count($needles) == 0) return false;
+
+        $found = false;
+        foreach ($haystack as $key => $val) {
+            foreach ($needles as $needle) {
+                if ($val === $needle) {
+                    $found = true;
+                    unset($haystack[$key]);
+                    break;
+                }
+            }
+        }
+
+        return $found;
+    }
+
+
+    /**
      * Parse arguments from command line into the class state
      *
      * @param array $argv Command-line arguments
@@ -43,38 +71,43 @@ class CmdLine {
      */
     public function parse(array $argv)
     {
-        $argc = count($argv);
-
-        $this->write = (in_array('-w', $argv) or in_array('--write', $argv));
-        $this->missing_only = (in_array('-m', $argv) or in_array('--missing', $argv));
-        $this->needs_only = (in_array('-n', $argv) or in_array('--needs', $argv));
-        $this->use_colours = (!in_array('-d', $argv) and !in_array('--no-colour', $argv) and !in_array('--no-color', $argv));
-        $this->log_classes = (in_array('-l', $argv) or in_array('--log-classes', $argv));
+        $this->write = $this->arraySeekAndDestroy(['-w', '--write'], $argv);
+        $this->missing_only = $this->arraySeekAndDestroy(['-m', '--missing'], $argv);
+        $this->needs_only = $this->arraySeekAndDestroy(['-n', '--needs'], $argv);
+        $this->use_colours = !$this->arraySeekAndDestroy(['-d', '--no-colour', '--no-color'], $argv);
+        $this->log_classes = $this->arraySeekAndDestroy(['-l', '--log-classes'], $argv);
 
         if ($this->missing_only and $this->needs_only) {
             die('You can\'t have it both ways. Pick one or none: -m or -n' . PHP_EOL);
         }
 
         $this->target_paths = array();
-        foreach ($argv as $index => $arg) {
-            if ($arg == '--targeted') {
-                if ($argc <= $index + 1) die('--targeted requires a path argument' . PHP_EOL);
-                $this->target_paths[] = escapeshellarg($this->dir . $argv[$index + 1]);
-            }
-        }
-        if (in_array('--git', $argv)) {
+        if ($this->arraySeekAndDestroy(['--git'], $argv)) {
             $this->addGitTargets();
         }
 
+        // Remove self-reference and reset array indexes
+        array_shift($argv);
+        $argc = count($argv);
+
         $this->watch = array_search('--watch', $argv);
-        if ($this->watch) {
+        if ($this->watch !== false) {
             if ($argc <= $this->watch + 1) die('--watch requires a pattern argument' . PHP_EOL);
 
             $this->watch_pattern = $argv[$this->watch + 1];
+            unset($argv[$this->watch + 1], $argv[$this->watch]);
             $this->watch = true;
         } else {
             $this->watch_pattern = null;
         }
+
+        // Treat all remaining args as targeted file paths
+        foreach ($argv as $index => $arg) {
+            if ($arg == '--targeted') continue;
+
+            $this->target_paths[] = escapeshellarg($this->dir . $arg);
+        }
+
     }
 
 

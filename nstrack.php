@@ -12,7 +12,7 @@ NAME
     NSTrack
 
 SYNOPSIS
-    php nstrack.php [options]
+    php nstrack.php [options] [path1 [path2 [...]]]
 
 DESCRIPTION
     Reports on missing use statements and unknown class-like entities in code.
@@ -45,11 +45,6 @@ OPTIONS
         Only searches for missing use statements, not unknown classes. This
         mode is incompatible with --missing.
 
-    --targeted path
-        Only search the specified path. All found files will still be parsed
-        to extract the necessary class definitions. Supports multiple --targeted
-        options.
-
     --git
         Target all changed files according to git (does a `git status`).
 
@@ -60,6 +55,13 @@ OPTIONS
     --watch pattern
         Prints debug output when parsing or processing files with names which
         match the (glob-style) wildcard pattern, e.g. '*Controller.php'
+
+PATHS
+    If at least one file path is specified, only the path(s) specified will be
+    reported on, although all files will still be read to extract the
+    necessary class definitions.
+
+    If no paths are specified, all files with issues will be reported on.
 
 DOCS;
 
