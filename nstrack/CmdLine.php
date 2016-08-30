@@ -105,7 +105,11 @@ class CmdLine {
         foreach ($argv as $index => $arg) {
             if ($arg == '--targeted') continue;
 
-            $this->target_paths[] = escapeshellarg($this->dir . $arg);
+            if (substr($arg, 0, strlen($this->dir)) == $this->dir) {
+                $this->target_paths[] = escapeshellarg($arg);
+            } else {
+                $this->target_paths[] = escapeshellarg($this->dir . $arg);
+            }
         }
 
     }
