@@ -255,7 +255,9 @@ class ParsedFile {
                     $expect_type = false;
                     continue;
                 }
-                $expect_type = false;
+                if ($tok[0] != T_WHITESPACE) {
+                    $expect_type = false;
+                }
             }
             ++$i;
             $tok = $this->tokens[$i];
