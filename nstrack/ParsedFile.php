@@ -11,7 +11,6 @@
  */
 class ParsedFile {
     public $file;
-    public $content;
     public $mtime;
     public $tokens = [];
 
@@ -41,10 +40,14 @@ class ParsedFile {
     }
 
 
+    private function readTokens() {
+        $content = file_get_contents($this->file);
+        $this->tokens = token_get_all($content);
+    }
+
     static function parse($file) {
         $parsed_file = new ParsedFile($file);
-        $parsed_file->content = file_get_contents($file);
-        $parsed_file->tokens = token_get_all($parsed_file->content);
+        $parsed_file->readTokens();
         $num_tokens = count($parsed_file->tokens);
         $key = 0;
         $parsed_file->brace_depth = 0;
