@@ -224,6 +224,7 @@ foreach ($file_names as $filename) {
         $debug_text .= "Checking class ref: {$class} on line {$line}\n";
         $ignore_class = $class;
 
+        // If a class is not found, the NSTrack parser is broken in some way
         if (!$class) {
             $err = "Broken class ref in {$filename} on line {$line}\n" . print_r($class_ref, true);
             if (!empty($used_classes[$ref_id - 1])) $err .= "Prev ref: " . print_r($used_classes[$ref_id - 1], true);
