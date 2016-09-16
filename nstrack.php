@@ -226,7 +226,6 @@ foreach ($file_names as $filename) {
 
         if (!$class) {
             $err = "Broken class ref in {$filename} on line {$line}\n" . print_r($class_ref, true);
-            $err .= "\nToken: " . token_str($file->tokens[$class_ref->key]) . "\n";
             if (!empty($used_classes[$ref_id - 1])) $err .= "Prev ref: " . print_r($used_classes[$ref_id - 1], true);
             if (!empty($used_classes[$ref_id + 1])) $err .= "Next ref: " . print_r($used_classes[$ref_id + 1], true);
             fwrite(STDERR, $err);

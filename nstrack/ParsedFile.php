@@ -117,6 +117,9 @@ class ParsedFile {
         }
         unset($parsed_file->brace_depth);
 
+        // This isn't needed anymore, so throw away and save lots of RAM.
+        unset($parsed_file->tokens);
+
         return $parsed_file;
     }
 
