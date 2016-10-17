@@ -138,6 +138,10 @@ class CmdLine {
                 $filename = stripslashes($filename);
             }
 
+            if (!preg_match('/\.php$/', $filename)) {
+                continue;
+            }
+
             $this->target_paths[] = escapeshellarg($this->dir . $filename);
         }
     }
