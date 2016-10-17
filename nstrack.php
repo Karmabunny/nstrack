@@ -195,9 +195,14 @@ $unknown_classes = [];
 if (count($cmdline->target_paths) > 0) {
     $file_names = [];
     foreach ($cmdline->target_paths as $path) {
-        $cmd = "find {$path} -name '*.php'";
-        $tmp = [];
-        exec($cmd, $tmp);
+        if (substr($path, -4) == '.php') {
+            $tmp = [$path];
+        } else {
+            $cmd = "find {$path} -name '*.php'";
+            $tmp = [];
+            exec($cmd, $tmp);
+        }
+
         $file_names = array_merge($file_names, $tmp);
     }
     $file_names = array_unique($file_names);
