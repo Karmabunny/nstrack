@@ -88,8 +88,16 @@ Config::load($source_dir . $config_file);
 $cmdline = new CmdLine($source_dir, $argv);
 
 $cmd = "find " . Config::dir() . " -name '*.php'";
+
+/**
+ * Stores ParsedFile objects - one for each parsed file.
+ * Needed for reference even if the file contents aren't to be checked this run.
+ */
 $files = [];
+
+/** Names of files which should have contents checked this run */
 $file_names = [];
+
 exec($cmd, $file_names);
 
 $cache_file = $source_dir . '.nstrack_cache.json';
