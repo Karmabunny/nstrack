@@ -121,6 +121,7 @@ class CmdLine {
      */
     public function addGitTargets()
     {
+        $pwd = realpath(getcwd()) . '/';
         $git_log = shell_exec('git status -z --porcelain');
         $git_log = array_filter(explode("\0", $git_log));
 
@@ -142,7 +143,13 @@ class CmdLine {
                 continue;
             }
 
-            $this->target_paths[] = escapeshellarg($this->dir . $filename);
+            // Ensure only files within the source dir get parsed
+            $filename = $this->dir . $filename;
+            if (substr($filename, 0, strlen($pwd)) != $pwd) {
+                continue;
+            }
+
+            $this->target_paths[] = escapeshellarg($filename);
         }
     }
 
