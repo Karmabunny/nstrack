@@ -239,7 +239,7 @@ class ParsedFile {
     }
 
     function handleFunction(&$key) {
-        static $scalar_typehints = ['string', 'integer', 'int', 'float', 'bool', 'boolean'];
+        static $scalar_typehints = ['string', 'int', 'float', 'bool', 'object', 'callable', 'iterable'];
 
         // Skip to function args
         do {
