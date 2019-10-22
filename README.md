@@ -36,3 +36,6 @@ There are also some flags which do additional processing:
   Display only missing classes.
 * `--colours`
   Enable coloured output.
+* `--git`
+  Only operate on changed paths (according to `git status`).
+  Useful with `-w` when making changes to projects, especially namespace renames.
