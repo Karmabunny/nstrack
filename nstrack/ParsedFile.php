@@ -239,6 +239,8 @@ class ParsedFile {
     }
 
     function handleFunction(&$key) {
+        static $scalar_typehints = ['string', 'integer', 'int', 'float', 'bool', 'boolean'];
+
         // Skip to function args
         do {
             ++$key;
@@ -256,7 +258,9 @@ class ParsedFile {
                 if ($expect_type and $tok[0] == T_STRING) {
                     $line = $tok[2];
                     $class = $this->extractEntity($i, false);
-                    $this->addClassRef($class, $line, $i);
+                    if (!in_array(strtolower($class), $scalar_typehints)) {
+                        $this->addClassRef($class, $line, $i);
+                    }
                     $tok = $this->tokens[$i];
                     $expect_type = false;
                     continue;
