@@ -272,6 +272,22 @@ class ParsedFile {
             ++$i;
             $tok = $this->tokens[$i];
         }
+
+        // Search after the arguments for a return typehint, and extract if found
+        $has_return = false;
+        while ($tok !== '{') {
+            if ($tok === ':') {
+                $has_return = true;
+            } elseif ($has_return and $tok[0] === T_STRING) {
+                $class = $this->extractEntity($i, false);
+                if (!in_array(strtolower($class), $scalar_typehints) and strtolower($class) !== 'void') {
+                    $this->addClassRef($class, $line, $i);
+                }
+                break;
+            }
+            ++$i;
+            $tok = $this->tokens[$i];
+        }
     }
 
     function isEmpty() {
