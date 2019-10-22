@@ -279,6 +279,7 @@ class ParsedFile {
             if ($tok === ':') {
                 $has_return = true;
             } elseif ($has_return and $tok[0] === T_STRING) {
+                $line = $tok[2];
                 $class = $this->extractEntity($i, false);
                 if (!in_array(strtolower($class), $scalar_typehints) and strtolower($class) !== 'void') {
                     $this->addClassRef($class, $line, $i);
