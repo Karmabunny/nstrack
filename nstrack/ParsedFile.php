@@ -275,7 +275,7 @@ class ParsedFile {
 
         // Search after the arguments for a return typehint, and extract if found
         $has_return = false;
-        while ($tok !== '{') {
+        while ($tok !== '{' and $tok !== ';') {
             if ($tok === ':') {
                 $has_return = true;
             } elseif ($has_return and $tok[0] === T_STRING) {
