@@ -169,6 +169,12 @@ class CmdLine {
 
             $this->target_paths[] = escapeshellarg($filename);
         }
+
+        if (empty($this->target_paths)) {
+            echo "Restricting to git modified files, but zero files within\n";
+            echo "the search directories have been modified.\n";
+            exit(1);
+        }
     }
 
 }
