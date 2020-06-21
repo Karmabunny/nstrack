@@ -115,6 +115,16 @@ class CmdLine {
     }
 
 
+    private static function findGitDir()
+    {
+        $dir = realpath(getcwd()) . '/';
+        while ($dir and is_dir($dir) and !is_dir($dir . '.git')) {
+            $dir = preg_replace('#[^/]*/$#', '', $dir);
+        }
+        return $dir;
+    }
+
+
     /**
      * Execute a "git status" and use that to add target paths
      * Note - doesn't currently parse flags in status, so may try to target deleted files
@@ -122,6 +132,14 @@ class CmdLine {
     public function addGitTargets()
     {
         $config_dir = Config::dir();
+
+        // git porcelain output is relative to the git root directory
+        $git_dir = self::findGitDir();
+        if (empty($git_dir)) {
+            echo "Unable to find .git directory in any parent directory\n";
+            exit(1);
+        }
+
         $git_log = shell_exec('git status -z --porcelain');
         $git_log = array_filter(explode("\0", $git_log));
 
@@ -144,7 +162,7 @@ class CmdLine {
             }
 
             // Ensure only files within the source dir get parsed
-            $filename = $this->dir . $filename;
+            $filename = $git_dir . $filename;
             if (substr($filename, 0, strlen($config_dir)) != $config_dir) {
                 continue;
             }
