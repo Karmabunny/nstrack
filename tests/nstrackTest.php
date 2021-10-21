@@ -1,7 +1,10 @@
 <?php
+
+use PHPUnit\Framework\TestCase;
+
 require_once __DIR__ . '/../nstrack/inc.php';
 
-class nstrackTest extends PHPUnit_Framework_TestCase
+class nstrackTest extends TestCase
 {
     public function testTypeHints()
     {
