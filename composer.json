@@ -1,0 +1,17 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "karmabunny/nstrack",
+    "description": "Track namespace use in PHP",
+    "type": "library",
+    "keywords": ["namespace"],
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Karmabunny",
+            "email": "info@karmabunny.com.au"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+    }
+}
