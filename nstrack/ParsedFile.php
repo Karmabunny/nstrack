@@ -133,7 +133,7 @@ class ParsedFile {
      */
     function extractEntity(&$key, $is_ref = false) {
         $offset = -1;
-        $ok = [T_STRING, T_NS_C];
+        $ok = [T_STRING, T_NS_C, T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED];
         $ref_ok = [T_VARIABLE, T_STRING, T_CLASS_C, T_STATIC];
         if ($is_ref) $ok = array_merge($ok, $ref_ok);
 
