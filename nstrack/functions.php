@@ -124,20 +124,20 @@ function write_use_block($block, $file) {
     }
 
     if ($use_start > 0) {
-        $start = rtrim(implode(array_slice($lines, 0, $use_start), ''));
+        $start = rtrim(implode('', array_slice($lines, 0, $use_start)));
         if ($ns > 0) {
             $start .= "\n\n";
         } else {
             $start .= "\n";
         }
-        $end = "\n\n" . ltrim(implode(array_slice($lines, $use_end), ''));
+        $end = "\n\n" . ltrim(implode('', array_slice($lines, $use_end)));
     } else if ($ns > 0) {
-        $start = rtrim(implode(array_slice($lines, 0, $ns + 1), '')) . "\n\n";
-        $end = "\n\n" . ltrim(implode(array_slice($lines, $ns + 1), ''));
+        $start = rtrim(implode('', array_slice($lines, 0, $ns + 1))) . "\n\n";
+        $end = "\n\n" . ltrim(implode('', array_slice($lines, $ns + 1)));
     } else if ($code_start >= 0) {
-        $end = ltrim(implode(array_slice($lines, $code_start), ''));
+        $end = ltrim(implode('', array_slice($lines, $code_start)));
         if ($in_php) {
-            $start = rtrim(implode(array_slice($lines, 0, $code_start), ''));
+            $start = rtrim(implode('', array_slice($lines, 0, $code_start)));
             if ($start != '<?php') $start .= "\n";
             $start .= "\n";
             if (substr($end, 0, 2) != '?>') $end = "\n\n" . $end;
