@@ -169,6 +169,7 @@ class ParsedFile {
 
         // use statement inside a class refers to a trait, not a namespace
         if ($this->brace_depth > 0) {
+            if ($this->tokens[$key] === ';') --$key;
             $line = $this->tokens[$key][2];
             $this->addClassRef($ns, $line, $key);
             return;
