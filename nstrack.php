@@ -258,7 +258,7 @@ foreach ($file_names as $filename) {
             $debug_text .= "    checking full class list... ";
             $full_ref = substr($class, 1);
             $stripped = rm_class_ns($full_ref);
-            if (@in_array($full_ref, $full_classes[$stripped])) {
+            if (in_array($full_ref, $full_classes[$stripped] ?? [])) {
                 $debug_text .= "OK (full reference)\n\n";
                 continue;
             }
