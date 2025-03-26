@@ -53,8 +53,12 @@ class ParsedFile {
         $num_tokens = count($parsed_file->tokens);
         $key = 0;
         $parsed_file->brace_depth = 0;
+
+        ExceptionHandler::setContext(['file' => $file]);
+
         while ($key < $num_tokens) {
             $token = $parsed_file->tokens[$key];
+
             if (is_string($token)) {
                 ++$key;
                 if ($token == '{') {
@@ -64,6 +68,11 @@ class ParsedFile {
                 }
                 continue;
             }
+
+            ExceptionHandler::addContext([
+                'token' => token_name($token[0]),
+                'line' => $token[2],
+            ]);
 
             switch ($token[0]) {
                 case T_CURLY_OPEN:
@@ -113,6 +122,8 @@ class ParsedFile {
                     ++$key;
             }
         }
+
+        ExceptionHandler::clearContext();
 
         if ($parsed_file->brace_depth != 0) {
             throw new Exception("Brace depth of {$parsed_file->brace_depth} not zero at end of file: {$file}");
