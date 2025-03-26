@@ -20,4 +20,10 @@ class nstrackTest extends TestCase
         $this->assertEquals(['Nested\\Namespace\\Structure'], $file->namespaces);
     }
 
+    public function testClosure()
+    {
+        $file = ParsedFile::parse(__DIR__ . '/data/closure.php');
+        $this->assertEquals(1, count($file->refs));
+    }
+
 }
