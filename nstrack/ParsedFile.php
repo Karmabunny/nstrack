@@ -34,6 +34,8 @@ class ParsedFile {
      */
     public $refs = [];
 
+    private $brace_depth;
+
 
     function __construct($file) {
         $this->file = $file;
