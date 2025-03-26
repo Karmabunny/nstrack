@@ -9,7 +9,21 @@ class ExceptionHandler
     public static function init()
     {
         error_reporting(-1);
+        set_error_handler([__CLASS__, 'errorToException']);
         set_exception_handler([__CLASS__, 'exceptionHandler']);
+    }
+
+
+    /**
+     * Convert PHP errors into ErrorException exceptions
+     */
+    public static function errorToException(int $errno, string $errstr, string $errfile, int $errline)
+    {
+        if (!(error_reporting() & $errno)) {
+            return;
+        } else {
+            throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+        }
     }
 
 
