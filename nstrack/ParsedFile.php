@@ -88,7 +88,11 @@ class ParsedFile {
 
                 case T_USE:
                     ++$key;
-                    $parsed_file->handleUse($key);
+                    if ($parsed_file->brace_depth > 0) {
+                        $parsed_file->handleInsideClassUse($key);
+                    } else {
+                        $parsed_file->handleFileUse($key);
+                    }
                     break;
 
                 case T_CLASS:
@@ -174,26 +178,27 @@ class ParsedFile {
         $this->namespaces[] = $this->extractEntity($key);
     }
 
-    function handleUse(&$key) {
+    function handleFileUse(&$key) {
         $ns = $this->extractEntity($key);
-
-        // Ignore use ($var) in closure declarations
-        if (!$ns) return;
-
-        // use statement inside a class refers to a trait, not a namespace
-        if ($this->brace_depth > 0) {
-            if ($this->tokens[$key] === ';') --$key;
-            $line = $this->tokens[$key][2];
-            $this->addClassRef($ns, $line, $key);
-            return;
-        }
-
         $alias = '';
         if ($this->tokens[$key][0] == T_AS) {
             $key += 2;
             $alias = $this->extractEntity($key);
         }
         $this->uses[] = new UseStatement($ns, $alias);
+    }
+
+    /**
+     * Use statements inside of the class, either traits or closures
+     */
+    function handleInsideClassUse(&$key)
+    {
+        $ns = $this->extractEntity($key);
+        if (!$ns) return;
+
+        if ($this->tokens[$key] === ';') --$key;
+        $line = $this->tokens[$key][2];
+        $this->addClassRef($ns, $line, $key);
     }
 
     function handleClass(&$key) {
