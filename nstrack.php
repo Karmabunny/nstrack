@@ -70,6 +70,8 @@ if (in_array('-h', $argv) or in_array('--help', $argv) or in_array('-help', $arg
 
 require __DIR__ . '/nstrack/inc.php';
 
+ExceptionHandler::init();
+
 $source_dir = realpath(getcwd()) . '/';
 $config_file = '.nstrack.php';
 

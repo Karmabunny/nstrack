@@ -7,6 +7,7 @@
 
 
 require __DIR__ . '/internal.php';
+require __DIR__ . '/ExceptionHandler.php';
 require __DIR__ . '/Config.php';
 require __DIR__ . '/CmdLine.php';
 require __DIR__ . '/ParsedFile.php';
