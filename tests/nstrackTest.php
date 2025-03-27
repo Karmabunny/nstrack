@@ -26,4 +26,15 @@ class nstrackTest extends TestCase
         $this->assertEquals(1, count($file->refs));
     }
 
+    public function testParseMultipleUse()
+    {
+        $file = ParsedFile::parse(__DIR__ . '/data/multi_use.php');
+
+        $classes = array_column((array)$file->refs, 'class');
+        $this->assertEquals([
+            'A', 'B', 'C', 'D', 'E',
+            '\Other\Ns\A', '\Other\Ns\B', '\Other\Ns\C', '\Other\Ns\D', '\Other\Ns\E',
+        ], $classes);
+    }
+
 }
