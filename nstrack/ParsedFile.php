@@ -193,9 +193,15 @@ class ParsedFile {
      */
     function handleInsideClassUse(&$key)
     {
-        $ns = $this->extractEntity($key);
-        if (!$ns) return;
+        // Check for closures
+        if (@$this->tokens[$key][0] === T_WHITESPACE) {
+            ++$key;
+        }
+        if ($this->tokens[$key] === '(') {
+            return;
+        }
 
+        $ns = $this->extractEntity($key);
         if ($this->tokens[$key] === ';') --$key;
         $line = $this->tokens[$key][2];
         $this->addClassRef($ns, $line, $key);
