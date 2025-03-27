@@ -201,10 +201,19 @@ class ParsedFile {
             return;
         }
 
-        $ns = $this->extractEntity($key);
-        if ($this->tokens[$key] === ';') --$key;
-        $line = $this->tokens[$key][2];
-        $this->addClassRef($ns, $line, $key);
+        // Parse use statements for traits. These can contain one or more
+        // comma-separated traits and also opening braces for overrides etc
+        do {
+            $tok = $this->tokens[$key];
+            if (in_array($tok[0], [T_STRING, T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAME_RELATIVE])) {
+                $ns = $this->tokens[$key][1];
+                $line = $this->tokens[$key][2];
+                $this->addClassRef($ns, $line, $key);
+            } elseif ($tok === ';' or $tok === '{') {
+                break;
+            }
+            ++$key;
+        } while(!empty($tok));
     }
 
     function handleClass(&$key) {
