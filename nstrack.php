@@ -89,7 +89,7 @@ Config::load($source_dir . $config_file);
 
 $cmdline = new CmdLine($source_dir, $argv);
 
-$cmd = "find " . Config::dir() . " -name '*.php'";
+$cmd = "find " . Config::dir() . " -type 'f' -name '*.php'";
 
 /**
  * Stores ParsedFile objects - one for each parsed file.
