@@ -37,4 +37,13 @@ class nstrackTest extends TestCase
         ], $classes);
     }
 
+    public function testParseUseFunction()
+    {
+        $file = ParsedFile::parse(__DIR__ . '/data/use_function.php');
+        $classes = array_column((array)$file->uses, 'entity');
+        $this->assertEquals([
+            'AnotherClass', 'Nested\WowClass', '\Nested\ThirdClass',
+        ], $classes);
+    }
+
 }
