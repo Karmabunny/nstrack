@@ -179,6 +179,18 @@ class ParsedFile {
     }
 
     function handleFileUse(&$key) {
+        if ($this->tokens[$key][0] === T_WHITESPACE) {
+            ++$key;
+        }
+
+        // Ignore "use function" statements
+        if ($this->tokens[$key][0] === T_FUNCTION) {
+            while ($this->tokens[$key][0] !== ';') {
+                ++$key;
+            }
+            return;
+        }
+
         $ns = $this->extractEntity($key);
         $alias = '';
         if ($this->tokens[$key][0] == T_AS) {
