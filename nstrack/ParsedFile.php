@@ -34,6 +34,8 @@ class ParsedFile {
      */
     public $refs = [];
 
+    private $brace_depth;
+
 
     function __construct($file) {
         $this->file = $file;
@@ -51,8 +53,12 @@ class ParsedFile {
         $num_tokens = count($parsed_file->tokens);
         $key = 0;
         $parsed_file->brace_depth = 0;
+
+        ExceptionHandler::setContext(['file' => $file]);
+
         while ($key < $num_tokens) {
             $token = $parsed_file->tokens[$key];
+
             if (is_string($token)) {
                 ++$key;
                 if ($token == '{') {
@@ -62,6 +68,11 @@ class ParsedFile {
                 }
                 continue;
             }
+
+            ExceptionHandler::addContext([
+                'token' => token_name($token[0]),
+                'line' => $token[2],
+            ]);
 
             switch ($token[0]) {
                 case T_CURLY_OPEN:
@@ -77,7 +88,11 @@ class ParsedFile {
 
                 case T_USE:
                     ++$key;
-                    $parsed_file->handleUse($key);
+                    if ($parsed_file->brace_depth > 0) {
+                        $parsed_file->handleInsideClassUse($key);
+                    } else {
+                        $parsed_file->handleFileUse($key);
+                    }
                     break;
 
                 case T_CLASS:
@@ -112,6 +127,8 @@ class ParsedFile {
             }
         }
 
+        ExceptionHandler::clearContext();
+
         if ($parsed_file->brace_depth != 0) {
             throw new Exception("Brace depth of {$parsed_file->brace_depth} not zero at end of file: {$file}");
         }
@@ -133,7 +150,7 @@ class ParsedFile {
      */
     function extractEntity(&$key, $is_ref = false) {
         $offset = -1;
-        $ok = [T_STRING, T_NS_C];
+        $ok = [T_STRING, T_NS_C, T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED];
         $ref_ok = [T_VARIABLE, T_STRING, T_CLASS_C, T_STATIC];
         if ($is_ref) $ok = array_merge($ok, $ref_ok);
 
@@ -161,25 +178,54 @@ class ParsedFile {
         $this->namespaces[] = $this->extractEntity($key);
     }
 
-    function handleUse(&$key) {
-        $ns = $this->extractEntity($key);
+    function handleFileUse(&$key) {
+        if ($this->tokens[$key][0] === T_WHITESPACE) {
+            ++$key;
+        }
 
-        // Ignore use ($var) in closure declarations
-        if (!$ns) return;
-
-        // use statement inside a class refers to a trait, not a namespace
-        if ($this->brace_depth > 0) {
-            $line = $this->tokens[$key][2];
-            $this->addClassRef($ns, $line, $key);
+        // Ignore "use function" statements
+        if ($this->tokens[$key][0] === T_FUNCTION) {
+            while ($this->tokens[$key][0] !== ';') {
+                ++$key;
+            }
             return;
         }
 
+        $ns = $this->extractEntity($key);
         $alias = '';
         if ($this->tokens[$key][0] == T_AS) {
             $key += 2;
             $alias = $this->extractEntity($key);
         }
         $this->uses[] = new UseStatement($ns, $alias);
+    }
+
+    /**
+     * Use statements inside of the class, either traits or closures
+     */
+    function handleInsideClassUse(&$key)
+    {
+        // Check for closures
+        if (@$this->tokens[$key][0] === T_WHITESPACE) {
+            ++$key;
+        }
+        if ($this->tokens[$key] === '(') {
+            return;
+        }
+
+        // Parse use statements for traits. These can contain one or more
+        // comma-separated traits and also opening braces for overrides etc
+        do {
+            $tok = $this->tokens[$key];
+            if (in_array($tok[0], [T_STRING, T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAME_RELATIVE])) {
+                $ns = $this->tokens[$key][1];
+                $line = $this->tokens[$key][2];
+                $this->addClassRef($ns, $line, $key);
+            } elseif ($tok === ';' or $tok === '{') {
+                break;
+            }
+            ++$key;
+        } while(!empty($tok));
     }
 
     function handleClass(&$key) {

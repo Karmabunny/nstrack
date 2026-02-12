@@ -70,6 +70,8 @@ if (in_array('-h', $argv) or in_array('--help', $argv) or in_array('-help', $arg
 
 require __DIR__ . '/nstrack/inc.php';
 
+ExceptionHandler::init();
+
 $source_dir = realpath(getcwd()) . '/';
 $config_file = '.nstrack.php';
 
@@ -87,7 +89,7 @@ Config::load($source_dir . $config_file);
 
 $cmdline = new CmdLine($source_dir, $argv);
 
-$cmd = "find " . Config::dir() . " -name '*.php'";
+$cmd = "find " . Config::dir() . " -type 'f' -name '*.php'";
 
 /**
  * Stores ParsedFile objects - one for each parsed file.
@@ -258,7 +260,7 @@ foreach ($file_names as $filename) {
             $debug_text .= "    checking full class list... ";
             $full_ref = substr($class, 1);
             $stripped = rm_class_ns($full_ref);
-            if (@in_array($full_ref, $full_classes[$stripped])) {
+            if (in_array($full_ref, $full_classes[$stripped] ?? [])) {
                 $debug_text .= "OK (full reference)\n\n";
                 continue;
             }
