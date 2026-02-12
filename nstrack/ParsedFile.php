@@ -278,7 +278,7 @@ class ParsedFile {
             if ($tok[0] == T_WHITESPACE) continue;
             break;
         }
-        $line = $tok[2];
+        $line = $tok[2] ?? -1;
         $class = $this->extractEntity($key, true);
 
         $this->addClassRef($class, $line, $key);

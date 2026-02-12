@@ -12,7 +12,7 @@ class ExceptionHandler
     {
         error_reporting(-1);
         set_error_handler([__CLASS__, 'errorToException']);
-        set_exception_handler([__CLASS__, 'exceptionHandler']);
+        set_exception_handler([__CLASS__, 'handle']);
     }
 
 
@@ -32,7 +32,7 @@ class ExceptionHandler
     /**
      * Handler for exceptions
      */
-    public static function exceptionHandler(Throwable $ex): void
+    public static function handle(Throwable $ex): void
     {
         echo PHP_EOL;
         echo 'Uncaught Exception ', get_class($ex), PHP_EOL;

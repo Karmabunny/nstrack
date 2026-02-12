@@ -80,14 +80,19 @@ class Config {
     }
 
     /**
-     * Sets the list of classes to ignore
-     * @param array $ignore Class names (excluding namespaces)
+     * Sets the function to sort use statements
+     * @param callable $func
      * @return void
      */
     static function setSort(callable $func) {
         self::$sort_function = $func;
     }
 
+    /**
+     * Sets the function to split use blocks into groups
+     * @param callable $func
+     * @return void
+     */
     static function setGroup(callable $func) {
         self::$group_function = $func;
     }
